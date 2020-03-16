@@ -56,14 +56,12 @@ function initDemoMap() {
 
     var dummy0_3=L.marker([0,0]);
     var dummy40_5=L.marker([0,0]);
-    var TDummy=L.marker([0,0]);
-    var WindSpdDummy=L.marker([0,0]);
     var groupedOverlays = {
         "Climate Elements": {
             "Surface Temperature": TSurfLayer,
             "Albedo": AlbedoLayer,
-            "T": TDummy,
-            "WindSpd": WindSpdDummy,
+            "T": L.marker([0,0]),
+            "WindSpd": L.marker([0,0]),
         }
     };
     var options = { 
@@ -129,8 +127,6 @@ function initDemoMap() {
     let dummyMapping = new Map();
     dummyMapping.set('0,3 Meter',dummy0_3);
     dummyMapping.set('40,5 Meter',dummy40_5);
-    dummyMapping.set('T',TDummy);
-    dummyMapping.set('WindSpd',WindSpdDummy);
 
 //Called before Removing other layers
     map.on('overlayadd', function(eventLayer) {
@@ -155,13 +151,12 @@ function initDemoMap() {
             Mapping.get(eventLayer.name).removeFrom(map);
         }
         else if(Mapping.has(activeHeightLayer+'-'+eventLayer.name)){ //removing Height Layers
-            Mapping.get(activeHeightLayer+'-'+eventLayer.name).removeFrom(map);        
-            activeHeight=null;
+            Mapping.get(activeHeightLayer+'-'+eventLayer.name).removeFrom(map);
         }
         else{ // removing height variable
-            Mapping.get(eventLayer.name+'-'+activeHeight).removeFrom(map);//remove last used layer
+            Mapping.get(eventLayer.name+'-'+activeHeight).removeFrom(map);//remove last used layer (needed beacause activeHeightLayer has already changed)
             dummyMapping.get(activeHeight).removeFrom(map)
-            dummyMapping.get(eventLayer.name).removeFrom(map) //remove dummies to reset heightcontrol       
+            activeHeight=null   
         }
 
 
