@@ -54,15 +54,19 @@ function initDemoMap() {
     var AlbedoTimeLayer = L.timeDimension.layer.wms(AlbedoLayer,timeOptions)
 
 
-    var fakeLayer=L.marker([0,0])
+    var dummy0_3=L.marker([0,0]);
+    var dummy40_5=L.marker([0,0]);
+    var TDummy=L.marker([0,0]);
+    var WindSpdDummy=L.marker([0,0]);
     var groupedOverlays = {
         "Climate Elements": {
             "Surface Temperature": TSurfLayer,
             "Albedo": AlbedoLayer,
-            "T": fakeLayer
+            "T": TDummy,
+            "WindSpd": WindSpdDummy,
         }
     };
-    var options = {
+    var options = { 
         // Make the "Landmarks" group exclusive (use radio inputs)
         exclusiveGroups: ["Climate Elements","Heights"],
         // Show a checkbox next to non-exclusive group labels for toggling all
@@ -83,16 +87,25 @@ function initDemoMap() {
         format: 'image/png',
         transparent: true,
     });
+    var WindSpd_0_3Layer = L.tileLayer.betterWms(WMS_URL, { //dynamic tilelayers
+        layers: 'netcdf:WindSpd_0_3',
+        format: 'image/png',
+        transparent: true,
+    });
+
+    var WindSpd_40_5Layer = L.tileLayer.betterWms(WMS_URL, {
+        layers: 'netcdf:WindSpd_40_5',
+        format: 'image/png',
+        transparent: true,
+    });
 
 
     var T_0_3TimeLayer = L.timeDimension.layer.wms(T_0_3Layer,timeOptions)
     var T_40_5TimeLayer = L.timeDimension.layer.wms(T_40_5Layer,timeOptions)
 
-    var WindSpd_0_3TimeLayer = L.timeDimension.layer.wms(T_0_3Layer,timeOptions)
-    var WindSpd_40_5TimeLayer = L.timeDimension.layer.wms(T_40_5Layer,timeOptions)
+    var WindSpd_0_3TimeLayer = L.timeDimension.layer.wms(WindSpd_0_3Layer,timeOptions)
+    var WindSpd_40_5TimeLayer = L.timeDimension.layer.wms(WindSpd_40_5Layer,timeOptions)
 
-    var dummy0_3=L.marker([0,0]);
-    var dummy40_5=L.marker([0,0]);
     var heightOverlays = {
         "Heights": {
             "0,3 Meter": dummy0_3,
@@ -115,22 +128,24 @@ function initDemoMap() {
 
     let dummyMapping = new Map();
     dummyMapping.set('0,3 Meter',dummy0_3);
-    dummyMapping.set('40,5 Meter',WindSpd_40_5TimeLayer);
+    dummyMapping.set('40,5 Meter',dummy40_5);
+    dummyMapping.set('T',TDummy);
+    dummyMapping.set('WindSpd',WindSpdDummy);
 
-
+//Called before Removing other layers
     map.on('overlayadd', function(eventLayer) {
         if (Mapping.has(eventLayer.name)){
-            Mapping.get(eventLayer.name).addTo(this);
+            Mapping.get(eventLayer.name).addTo(map);
+            map.removeLayer(HeightControl);//Not a heightLayer - therefore disabling Heightcontrol
+            HeightControl.remove(); 
         }
         else if(Mapping.has(activeHeightLayer+'-'+eventLayer.name)){ //Height Layers
-            Mapping.get(activeHeightLayer+'-'+eventLayer.name).addTo(this); 
-            activeHeight=eventLayer.name;          
+            Mapping.get(activeHeightLayer+'-'+eventLayer.name).addTo(map);
+            activeHeight=eventLayer.name;   
         } 
-        else{
+        else{ //preparing Height Variable
             activeHeightLayer=eventLayer.name;
             HeightControl.addTo(map);
-            map.addControl(HeightControl);
-
         }         
     });
 
@@ -141,19 +156,14 @@ function initDemoMap() {
         }
         else if(Mapping.has(activeHeightLayer+'-'+eventLayer.name)){ //removing Height Layers
             Mapping.get(activeHeightLayer+'-'+eventLayer.name).removeFrom(map);        
-        } 
-        else{ //changing to basic layer
-            if (activeHeight!=null){
-            Mapping.get(activeHeightLayer+'-'+activeHeight).removeFrom(map); //remove last used height layer
-            dummyMapping.get(activeHeight).removeFrom(map);//remove dummy to reset heightcontrol
-            activeHeightLayer=null;
             activeHeight=null;
-
         }
-        map.removeLayer(HeightControl);
-        HeightControl.remove();
+        else{ // removing height variable
+            Mapping.get(eventLayer.name+'-'+activeHeight).removeFrom(map);//remove last used layer
+            dummyMapping.get(activeHeight).removeFrom(map)
+            dummyMapping.get(eventLayer.name).removeFrom(map) //remove dummies to reset heightcontrol       
+        }
 
-        }  
 
     });
 
