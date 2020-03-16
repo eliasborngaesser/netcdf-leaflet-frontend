@@ -1,6 +1,7 @@
 
 
 var activeHeightLayer=null//used for click event
+var activeHeight=null
 // Load Leaflet map
 function initDemoMap() {
     
@@ -90,54 +91,68 @@ function initDemoMap() {
     var WindSpd_0_3TimeLayer = L.timeDimension.layer.wms(T_0_3Layer,timeOptions)
     var WindSpd_40_5TimeLayer = L.timeDimension.layer.wms(T_40_5Layer,timeOptions)
 
+    var dummy0_3=L.marker([0,0]);
+    var dummy40_5=L.marker([0,0]);
     var heightOverlays = {
         "Heights": {
-            "0,3 Meter": L.marker([0,0]),
-            "40,5 Meter": L.marker([0,0])
+            "0,3 Meter": dummy0_3,
+            "40,5 Meter": dummy40_5
         }
     };
-
-
 
     var HeightControl=L.control.groupedLayers(null, heightOverlays,options);
 
    // var WindSpdHeightControl=L.control.groupedLayers(null, heightOverlays,options)
     
 
-    let timeLayerMapping = new Map();
-    timeLayerMapping.set('Surface Temperature',TSurfTimeLayer);
-    timeLayerMapping.set('Albedo',AlbedoTimeLayer);
-    timeLayerMapping.set('T-0,3 Meter',T_0_3TimeLayer);
-    timeLayerMapping.set('T-40,5 Meter',T_40_5TimeLayer);
-    timeLayerMapping.set('WindSpd-0,3 Meter',WindSpd_0_3TimeLayer);
-    timeLayerMapping.set('WindSpd-40,5 Meter',WindSpd_40_5TimeLayer);
+    let Mapping = new Map();
+    Mapping.set('Surface Temperature',TSurfTimeLayer);
+    Mapping.set('Albedo',AlbedoTimeLayer);
+    Mapping.set('T-0,3 Meter',T_0_3TimeLayer);
+    Mapping.set('T-40,5 Meter',T_40_5TimeLayer);
+    Mapping.set('WindSpd-0,3 Meter',WindSpd_0_3TimeLayer);
+    Mapping.set('WindSpd-40,5 Meter',WindSpd_40_5TimeLayer);
+
+    let dummyMapping = new Map();
+    dummyMapping.set('0,3 Meter',dummy0_3);
+    dummyMapping.set('40,5 Meter',WindSpd_40_5TimeLayer);
 
 
     map.on('overlayadd', function(eventLayer) {
-        if (timeLayerMapping.has(eventLayer.name)){
-            timeLayerMapping.get(eventLayer.name).addTo(this);
+        if (Mapping.has(eventLayer.name)){
+            Mapping.get(eventLayer.name).addTo(this);
         }
-        else if(timeLayerMapping.has(activeHeightLayer+'-'+eventLayer.name)){ //Height Layers
-            timeLayerMapping.get(activeHeightLayer+'-'+eventLayer.name).addTo(this);           
+        else if(Mapping.has(activeHeightLayer+'-'+eventLayer.name)){ //Height Layers
+            Mapping.get(activeHeightLayer+'-'+eventLayer.name).addTo(this); 
+            activeHeight=eventLayer.name;          
         } 
         else{
             activeHeightLayer=eventLayer.name;
-            HeightControl.addTo(this);
+            HeightControl.addTo(map);
+            map.addControl(HeightControl);
+
         }         
-
-
     });
 
     map.on('overlayremove', function(eventLayer) {
-        if (timeLayerMapping.has(eventLayer.name)){
-            timeLayerMapping.get(eventLayer.name).removeFrom(map);
+
+        if (Mapping.has(eventLayer.name)){ //removing basic layer
+            Mapping.get(eventLayer.name).removeFrom(map);
         }
-        else if(timeLayerMapping.has(activeHeightLayer+'-'+eventLayer.name)){ //Height Layers
-            timeLayerMapping.get(activeHeightLayer+'-'+eventLayer.name).removeFrom(map);          
+        else if(Mapping.has(activeHeightLayer+'-'+eventLayer.name)){ //removing Height Layers
+            Mapping.get(activeHeightLayer+'-'+eventLayer.name).removeFrom(map);        
         } 
-        else{
+        else{ //changing to basic layer
+            if (activeHeight!=null){
+            Mapping.get(activeHeightLayer+'-'+activeHeight).removeFrom(map); //remove last used height layer
+            dummyMapping.get(activeHeight).removeFrom(map);//remove dummy to reset heightcontrol
             activeHeightLayer=null;
-            HeightControl.remove();
+            activeHeight=null;
+
+        }
+        map.removeLayer(HeightControl);
+        HeightControl.remove();
+
         }  
 
     });
