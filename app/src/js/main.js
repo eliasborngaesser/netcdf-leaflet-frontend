@@ -1,8 +1,9 @@
+
+var activeLayer=null//refering to actual height
 function initMap() {
 
     var activeOverlay=null//refering to actual selected overlay
     var activeHeight=null//refering to actual height
-    var activeLayer=null//refering to actual height
 
     var map = L.map('map', {
         minZoom: 12,
@@ -23,7 +24,6 @@ function initMap() {
         if (document.getElementById("dynamicStyles").checked)
             addLegend(map,layer=activeLayer);
     });
-
     var baseLayers = getCommonBaseLayers(map); //from baselayers js
     var BasicControl =L.control.groupedLayers(baseLayers, groupedOverlays,controlOptions).addTo(map);
     L.control.slideMenu(projectHandling).addTo(map);
@@ -81,6 +81,13 @@ $('.leaflet-container').css('cursor','crosshair');
 $(function () {
     setNavigation();
 });
+
+function styleHandlingChanged(){ //reload Layer and Legend Control
+    if (activeLayer){
+       map.timeDimension.fire('timeload')
+       addLegend(map,layer=activeLayer);
+    }
+}
 
 function setNavigation() {
     var path = window.location.pathname;
