@@ -7,8 +7,12 @@ L.TimeDimension.Layer.customWMS = L.TimeDimension.Layer.WMS.extend({
             this._map.addLayer(layer);
             // console.log('Layer._onNewTimeLoading: layer added to map');
         }
-        if (this._baseLayer.options.styles!=(this._baseLayer.options.layers+map.timeDimension.getCurrentTimeIndex())){
-                    this.setParams({styles: this._baseLayer.options.layers+map.timeDimension.getCurrentTimeIndex() });
+        if (document.getElementById("dynamicStyles").checked)
+            _currentStyle=this._baseLayer.options.layers+map.timeDimension.getCurrentTimeIndex()
+        else
+            _currentStyle=this._baseLayer.options.layers
+        if (this._baseLayer.options.styles!=(_currentStyle)){
+                    this.setParams({styles: _currentStyle});
         }  
     },
      });

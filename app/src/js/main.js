@@ -18,8 +18,10 @@ function initMap() {
     map.timeDimension.setCurrentTime(0);
     map.setView(get_Location(), 15)
 
+
     map.timeDimension.on('timeload', function(data) {
-        addLegend(map,layer=activeLayer);
+        if (document.getElementById("dynamicStyles").checked)
+            addLegend(map,layer=activeLayer);
     });
 
     var baseLayers = getCommonBaseLayers(map); //from baselayers js
