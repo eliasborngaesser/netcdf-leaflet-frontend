@@ -49,7 +49,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
             layers: this.wmsParams.layers,
             query_layers: this.wmsParams.layers,
             info_format: 'text/html',
-            time: this.options.time
+            time: this.options.time,
+            tiled: true
           };
       
       params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
