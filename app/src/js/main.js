@@ -30,16 +30,16 @@ function initMap() {
 
     map.on('overlayadd', function(eventLayer) {
         if (layerMapping.has(eventLayer.name)){
-            layerMapping.get(eventLayer.name).addTo(map);
             activeLayer=eventLayer.name
+            layerMapping.get(eventLayer.name).addTo(map);
             addLegend(map,layer=activeLayer);
 
             map.removeLayer(HeightControl);//Not a heightLayer - therefore disabling Heightcontrol
             HeightControl.remove(); 
         }
         else if(layerMapping.has(activeOverlay+'-'+eventLayer.name)){ //Height Layers
-            layerMapping.get(activeOverlay+'-'+eventLayer.name).addTo(map);
             activeLayer=activeOverlay+'-'+eventLayer.name
+            layerMapping.get(activeOverlay+'-'+eventLayer.name).addTo(map);
             addLegend(map,layer=activeLayer);
             activeHeight=eventLayer.name;   
         } 
@@ -84,8 +84,8 @@ $(function () {
 
 function styleHandlingChanged(){ //reload Layer and Legend Control
     if (activeLayer){
-       map.timeDimension.fire('timeload')
-       addLegend(map,layer=activeLayer);
+        map.timeDimension.fire('timeload')
+        addLegend(map,layer=activeLayer);
     }
 }
 
