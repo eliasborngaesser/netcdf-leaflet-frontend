@@ -84,7 +84,12 @@ $(function () {
 
 function styleHandlingChanged(){ //reload Layer and Legend Control
     if (activeLayer){
-        map.timeDimension.fire('timeload')
+        map.eachLayer(function(layer){
+            if (layer.wmsParams){
+                layer.remove();
+                layer.addTo(map);
+        }
+        });
         addLegend(map,layer=activeLayer);
     }
 }
